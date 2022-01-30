@@ -48,11 +48,8 @@ def parse_docstring(docstring):
             metadata = {}
             body = "\n\n".join(parts[1:])
         else:
-            metadata = dict(metadata.items())
-            if metadata:
-                body = "\n\n".join(parts[1:-1])
-            else:
-                body = "\n\n".join(parts[1:])
+            metadata = dict(metadata)
+            body = "\n\n".join(parts[1:-1]) if metadata else "\n\n".join(parts[1:])
     return title, body, metadata
 
 

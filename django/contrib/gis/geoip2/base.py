@@ -118,10 +118,7 @@ class GeoIP2:
 
     @property
     def _country_or_city(self):
-        if self._country:
-            return self._country.country
-        else:
-            return self._city.city
+        return self._country.country if self._country else self._city.city
 
     def __del__(self):
         # Cleanup any GeoIP file handles lying around.
@@ -188,10 +185,7 @@ class GeoIP2:
     # #### Coordinate retrieval routines ####
     def coords(self, query, ordering=('longitude', 'latitude')):
         cdict = self.city(query)
-        if cdict is None:
-            return None
-        else:
-            return tuple(cdict[o] for o in ordering)
+        return None if cdict is None else tuple(cdict[o] for o in ordering)
 
     def lon_lat(self, query):
         "Return a tuple of the (longitude, latitude) for the given query."
@@ -203,11 +197,7 @@ class GeoIP2:
 
     def geos(self, query):
         "Return a GEOS Point object for the given query."
-        ll = self.lon_lat(query)
-        if ll:
-            return Point(ll, srid=4326)
-        else:
-            return None
+        return Point(ll, srid=4326) if (ll := self.lon_lat(query)) else None
 
     # #### GeoIP Database Information Routines ####
     @property
