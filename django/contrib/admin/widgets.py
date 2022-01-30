@@ -143,8 +143,7 @@ class ForeignKeyRawIdWidget(forms.TextInput):
                 current_app=self.admin_site.name,
             )
 
-            params = self.url_parameters()
-            if params:
+            if params := self.url_parameters():
                 related_url += '?' + urlencode(params)
             context['related_url'] = related_url
             context['link_title'] = _('Lookup')
@@ -177,7 +176,7 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         key = self.rel.get_related_field().name
         try:
             obj = self.rel.model._default_manager.using(self.db).get(**{key: value})
-        except (ValueError, self.rel.model.DoesNotExist, ValidationError):
+        except (ValueError, self.rel.model.DoesNotExist):
             return '', ''
 
         try:
@@ -216,8 +215,7 @@ class ManyToManyRawIdWidget(ForeignKeyRawIdWidget):
         return '', ''
 
     def value_from_datadict(self, data, files, name):
-        value = data.get(name)
-        if value:
+        if value := data.get(name):
             return value.split(',')
 
     def format_value(self, value):
@@ -335,7 +333,7 @@ class AdminURLFieldWidget(forms.URLInput):
 
     def get_context(self, name, value, attrs):
         try:
-            self.validator(value if value else '')
+            self.validator(value or '')
             url_valid = True
         except ValidationError:
             url_valid = False
@@ -441,10 +439,10 @@ class AutocompleteMixin:
             for obj in self.choices.queryset.using(self.db).filter(**{'%s__in' % to_field_name: selected_choices})
         )
         for option_value, option_label in choices:
-            selected = (
-                str(option_value) in value and
-                (has_selected is False or self.allow_multiple_selected)
+            selected = str(option_value) in value and (
+                not has_selected or self.allow_multiple_selected
             )
+
             has_selected |= selected
             index = len(default[1])
             subgroup = default[1]
